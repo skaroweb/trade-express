@@ -183,9 +183,10 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 app.use(express.static(path.join(__dirname, "public")));
 
 // Optional: Set up a route to serve your HTML file
-// app.get("/", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
+// Catch-all handler for any request that doesn't match an API route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
