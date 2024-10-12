@@ -16,8 +16,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const uri =
-  "mongodb+srv://vijaysp242387:x1FdqAbRPxAmvnqP@wizard.degcq.mongodb.net/wizard2?retryWrites=true&w=majority";
+const uri = process.env.MONGODB_URI;
 
 // MongoDB connection
 // MongoDB connection
@@ -27,8 +26,8 @@ mongoose
   .catch((err) => console.error(err));
 
 // Dummy token for authentication
-const DUMMY_TOKEN_ADMIN = "wizard_admin_token";
-const DUMMY_TOKEN_USER = "wizard_user_token";
+const DUMMY_TOKEN_ADMIN = process.env.ADMIN_TOKEN;
+const DUMMY_TOKEN_USER = process.env.USER_TOKEN;
 
 // Middleware to check token
 const authenticateToken = (req, res, next) => {
@@ -70,6 +69,13 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     provider,
   } = req.body;
 
+  // Validate phone number
+  if (!phone || phone.replace(/\D/g, "").length < 8) {
+    return res
+      .status(400)
+      .json({ message: "Phone number must contain at least 8 digits." });
+  }
+
   // Check if the email already exists
   const existingUser = await User.findOne({ Email });
   if (existingUser) {
@@ -78,20 +84,23 @@ app.post("/api/users", authenticateToken, async (req, res) => {
 
   // console.log(req.body);
 
+  // Combine phonecc and phone
+  const combinedPhone = ` ${phonecc} ${phone}`;
+
   const newUser = new User({
     Firstname,
     Lastname,
-    countryName,
-    country_code,
-    phone,
-    phonecc,
-    promotions,
-    terms,
     Email,
     provider,
+    phone: combinedPhone, // Store combined phone number
+    phonecc,
+    countryName,
+    country_code,
+    promotions,
+    terms,
   });
 
-  // console.log(newUser);
+  console.log(newUser);
 
   try {
     await newUser.save();
@@ -114,6 +123,27 @@ app.post("/api/users", authenticateToken, async (req, res) => {
 //   }
 // });
 
+// app.get("/api/users", authenticateToken, async (req, res) => {
+//   const { country, provider } = req.query;
+
+//   try {
+//     const query = {};
+//     if (country) query.countryName = country;
+//     if (provider) query.provider = provider;
+
+//     // If no query parameters are provided, fetch all users
+//     const users = await User.find(query);
+//     if (users.length === 0) {
+//       return res.status(404).json({ message: "No users found." });
+//     }
+//     res.status(200).json(users);
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ message: "Error retrieving users", error: err.message });
+//   }
+// });
+
 app.get("/api/users", authenticateToken, async (req, res) => {
   const { country, provider } = req.query;
 
@@ -122,8 +152,22 @@ app.get("/api/users", authenticateToken, async (req, res) => {
     if (country) query.countryName = country;
     if (provider) query.provider = provider;
 
-    // If no query parameters are provided, fetch all users
-    const users = await User.find(query);
+    // Get the token from the request headers
+    const token = req.headers["authorization"];
+
+    // Determine the projection based on the token
+    let projection;
+    if (token === `Bearer ${DUMMY_TOKEN_ADMIN}`) {
+      projection = {}; // Admin sees all fields
+    } else if (token === `Bearer ${DUMMY_TOKEN_USER}`) {
+      projection = { Firstname: 1, Lastname: 1, phone: 1 }; // User sees limited fields
+    } else {
+      return res.sendStatus(403); // Forbidden if the token is invalid
+    }
+
+    // Fetch users with the specified query and projection
+    const users = await User.find(query, projection);
+
     if (users.length === 0) {
       return res.status(404).json({ message: "No users found." });
     }
