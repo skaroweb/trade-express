@@ -160,9 +160,9 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 app.get("/", (req, res) => {
   // Get the client's IP address
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-  console.log(ip);
+  //console.log(ip);
   // Format response
-  // res.json({ ip });
+  res.json(ip);
 });
 
 app.listen(PORT, () => {
