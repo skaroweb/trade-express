@@ -87,8 +87,12 @@ app.post("/api/users", authenticateToken, async (req, res) => {
 
   // Combine phonecc and phone
   const combinedPhone = ` ${phonecc} ${phone}`;
+  const IpAddress = req.headers["x-forwarded-for"]
+    ? req.headers["x-forwarded-for"].split(",")[0]
+    : req.socket.remoteAddress;
 
   const newUser = new User({
+    IpAddress,
     Firstname,
     Lastname,
     Email,
@@ -150,20 +154,20 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 });
 
 // Serve static files from the 'public' directory
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
-// // Optional: Set up a route to serve your HTML file
-// // Catch-all handler for any request that doesn't match an API route
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
-app.get("/", (req, res) => {
-  // Get the client's IP address
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-  //console.log(ip);
-  // Format response
-  res.json(ip);
+// Optional: Set up a route to serve your HTML file
+// Catch-all handler for any request that doesn't match an API route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+// app.get("/", (req, res) => {
+//   // Get the client's IP address
+//   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+//   //console.log(ip);
+//   // Format response
+//   res.json(ip);
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
+  IpAddress: { type: String, required: true },
   Firstname: { type: String, required: true },
   Lastname: { type: String, required: true },
   Email: { type: String, required: true, unique: true }, // New email field
