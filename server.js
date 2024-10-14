@@ -92,7 +92,7 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     : req.socket.remoteAddress;
 
   const newUser = new User({
-    // IpAddress,
+    IpAddress,
     Firstname,
     Lastname,
     Email,
