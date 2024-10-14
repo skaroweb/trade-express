@@ -101,7 +101,7 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     terms,
   });
 
-  console.log(newUser);
+  //console.log(newUser);
 
   try {
     await newUser.save();
@@ -113,37 +113,6 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error saving user", error: err.message });
   }
 });
-
-// GET route to retrieve users
-// app.get("/api/users", authenticateToken, async (req, res) => {
-//   try {
-//     const users = await User.find();
-//     res.status(200).json(users);
-//   } catch (err) {
-//     res.status(500).json({ message: "Error retrieving users" });
-//   }
-// });
-
-// app.get("/api/users", authenticateToken, async (req, res) => {
-//   const { country, provider } = req.query;
-
-//   try {
-//     const query = {};
-//     if (country) query.countryName = country;
-//     if (provider) query.provider = provider;
-
-//     // If no query parameters are provided, fetch all users
-//     const users = await User.find(query);
-//     if (users.length === 0) {
-//       return res.status(404).json({ message: "No users found." });
-//     }
-//     res.status(200).json(users);
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ message: "Error retrieving users", error: err.message });
-//   }
-// });
 
 app.get("/api/users", authenticateToken, async (req, res) => {
   const { country, provider } = req.query;
@@ -181,20 +150,20 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 });
 
 // Serve static files from the 'public' directory
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
-// // Optional: Set up a route to serve your HTML file
-// // Catch-all handler for any request that doesn't match an API route
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
-app.get("/", (req, res) => {
-  // Get the client's IP address
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-
-  // Format response
-  res.json({ ip });
+// Optional: Set up a route to serve your HTML file
+// Catch-all handler for any request that doesn't match an API route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+// app.get("/", (req, res) => {
+//   // Get the client's IP address
+//   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+
+//   // Format response
+//   res.json({ ip });
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
