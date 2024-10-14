@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const User = require("./models/User");
 const path = require("path");
 const jwt = require("jsonwebtoken");
+const os = require("os");
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -92,7 +93,7 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     Lastname,
     Email,
     provider,
-    phone: combinedPhone, // Store combined phone number
+    phone, // Store combined phone number
     phonecc,
     countryName,
     country_code,
@@ -180,12 +181,19 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 });
 
 // Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
 
-// Optional: Set up a route to serve your HTML file
-// Catch-all handler for any request that doesn't match an API route
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// // Optional: Set up a route to serve your HTML file
+// // Catch-all handler for any request that doesn't match an API route
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "public", "index.html"));
+// });
+app.get("/", (req, res) => {
+  // Get the client's IP address
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+
+  // Format response
+  res.json({ ip });
 });
 
 app.listen(PORT, () => {
