@@ -8,8 +8,8 @@ const UserSchema = new mongoose.Schema({
   provider: { type: String, required: true },
   phone: { type: String, required: true },
   phonecc: { type: String },
-  countryName: { type: String },
-  country_code: { type: String },
+  // countryName: { type: String },
+  // country_code: { type: String },
   promotions: { type: Boolean, required: true },
   terms: { type: Boolean, required: true },
 });

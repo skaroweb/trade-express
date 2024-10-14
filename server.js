@@ -60,8 +60,8 @@ app.post("/api/users", authenticateToken, async (req, res) => {
   const {
     Firstname,
     Lastname,
-    countryName,
-    country_code,
+    // countryName,
+    // country_code,
     phone,
     phonecc,
     promotions,
@@ -99,8 +99,8 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     provider,
     phone, // Store combined phone number
     phonecc,
-    countryName,
-    country_code,
+    // countryName,
+    // country_code,
     promotions,
     terms,
   });
@@ -123,7 +123,7 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 
   try {
     const query = {};
-    if (country) query.countryName = country;
+    // if (country) query.countryName = country;
     if (provider) query.provider = provider;
 
     // Get the token from the request headers
