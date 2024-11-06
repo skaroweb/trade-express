@@ -4,9 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const User = require("./models/User");
 const path = require("path");
-const jwt = require("jsonwebtoken");
-const os = require("os");
 const dotenv = require("dotenv");
+const authRoutes = require("./routes/auth");
 
 dotenv.config();
 
@@ -16,6 +15,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 const uri = process.env.MONGODB_URI;
 
@@ -60,8 +62,6 @@ app.post("/api/users", authenticateToken, async (req, res) => {
   const {
     Firstname,
     Lastname,
-    // countryName,
-    // country_code,
     phone,
     phonecc,
     promotions,
@@ -83,8 +83,6 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     return res.status(400).json({ message: "Email already exists." });
   }
 
-  // console.log(req.body);
-
   // Combine phonecc and phone
   const combinedPhone = ` ${phonecc} ${phone}`;
   const IpAddress = req.headers["x-forwarded-for"]
@@ -99,13 +97,9 @@ app.post("/api/users", authenticateToken, async (req, res) => {
     provider,
     phone, // Store combined phone number
     phonecc,
-    // countryName,
-    // country_code,
     promotions,
     terms,
   });
-
-  //console.log(newUser);
 
   try {
     await newUser.save();
@@ -123,7 +117,6 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 
   try {
     const query = {};
-    // if (country) query.countryName = country;
     if (provider) query.provider = provider;
 
     // Get the token from the request headers
@@ -161,13 +154,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-// app.get("/", (req, res) => {
-//   // Get the client's IP address
-//   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-//   //console.log(ip);
-//   // Format response
-//   res.json(ip);
-// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
