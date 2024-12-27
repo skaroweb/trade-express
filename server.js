@@ -146,6 +146,31 @@ app.get("/api/users", authenticateToken, async (req, res) => {
   }
 });
 
+// DELETE route to delete a user by _id
+app.delete("/api/users/:id", authenticateToken, async (req, res) => {
+  if (req.role !== "admin") {
+    return res.sendStatus(403); // Forbidden if not admin
+  }
+
+  const { id } = req.params; // Extract the _id from the request parameters
+
+  try {
+    // Find the user by _id and delete
+    const userToDelete = await User.findByIdAndDelete(id);
+
+    if (!userToDelete) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({ message: "User deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting user:", err); // Log the error
+    res
+      .status(500)
+      .json({ message: "Error deleting user", error: err.message });
+  }
+});
+
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
 
